@@ -50,6 +50,7 @@ class ImageProcessor:
 
         # ToDo: Test the CV2 and the plt options. Can you find a difference in their functionality?
         # Show the image depending on the colour type.
+        
         if self._colour_type in ["RGB", "BGR"]:
             plt.imshow(self._image)
         else:
@@ -59,6 +60,8 @@ class ImageProcessor:
         plt.show()
 
         """
+
+        # with cv2, the picture is somehow colored blue
         cv2.imshow('Image', self._image)
 
         cv2.waitKey(0)
@@ -94,6 +97,12 @@ class ImageProcessor:
         # ToDo: Also update the current colour scheme.
         # ToDo: Do not use any external libraries or loops.
         # Perform the colour conversion.
+        if self._colour_type == "RGB":
+            self._image = cv2.cvtColor(self._image, cv2.COLOR_RGB2BGR)
+            self._colour_type = "BGR"
+        else:
+            self._image = cv2.cvtColor(self._image, cv2.COLOR_BGR2RGB)
+            self._colour_type = "RGB"
 
     def clip_image(self, clip_min: int, clip_max: int):
         """
@@ -125,3 +134,4 @@ class ImageProcessor:
 
 if __name__ == '__main__':
     processor = ImageProcessor(image_path=IMAGE_PATH, colour_type="RGB")
+    processor.show_image()
