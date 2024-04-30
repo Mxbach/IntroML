@@ -26,8 +26,13 @@ class ImageProcessor:
         # ToDo: Hint: Using CV2, you cannot directly load RGB images. So load it in BGR and convert it using CV2.
         # ToDo: The loaded image should be saved in self._image.
         self._colour_type: str = colour_type
-
-        self._image: np.ndarray = np.zeros(0)
+        img = cv2.imread(image_path)
+        self._image: np.ndarray = img
+        if colour_type == "RGB":
+            self._image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        if colour_type == "Gray":
+            self._image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            
 
     def get_image_data(self) -> tuple[np.ndarray, str]:
         """
