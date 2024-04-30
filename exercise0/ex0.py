@@ -147,5 +147,4 @@ class ImageProcessor:
 
 if __name__ == '__main__':
     processor = ImageProcessor(image_path=IMAGE_PATH, colour_type="RGB")
-    processor._image = processor._image[::-1]
     processor.show_image()
