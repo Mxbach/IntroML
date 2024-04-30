@@ -100,7 +100,7 @@ class ImageProcessor:
         if self._colour_type == "RGB":
             self._image = cv2.cvtColor(self._image, cv2.COLOR_RGB2BGR)
             self._colour_type = "BGR"
-        else:
+        elif self._colour_type == "BGR":
             self._image = cv2.cvtColor(self._image, cv2.COLOR_BGR2RGB)
             self._colour_type = "RGB"
 
@@ -116,6 +116,12 @@ class ImageProcessor:
         """
         # ToDo: Clip the pixel/colour intensities of the image to predefined values.
         # ToDo: Do not use any external libraries or loops.
+        mask_smol = self._image < clip_min
+        mask_big = self._image > clip_max
+
+        smol = np.where(mask_smol, clip_min, self._image)
+        big = np.where(mask_big, clip_max, smol)
+        self._image = big
 
     def flip_image(self, flip_value: int):
         """
@@ -130,8 +136,16 @@ class ImageProcessor:
 
         # ToDo: Flip the image using indexing.
         # ToDo: Do not use any external libraries or loops.
+        if flip_value == 0:
+            self._image = cv2.flip(self._image, 0)
+        elif flip_value == 1:
+            self._image = cv2.flip(self._image, 1)
+        else:
+            self._image = cv2.flip(self._image, -1)
+        
 
 
 if __name__ == '__main__':
     processor = ImageProcessor(image_path=IMAGE_PATH, colour_type="RGB")
+    processor._image = processor._image[::-1]
     processor.show_image()
