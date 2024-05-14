@@ -42,13 +42,36 @@ if __name__ == '__main__':
     # print(c)
     # plt.plot(c)
     # plt.show()
+    d = {"A2": 110.0000, "A3": 220.0000, "A4": 440.0000, "A5": 880.0000, "A6": 1760.000, "A7": 3520.000, "D6": 1174.659}
+    diffs = []
     for i in range(2, 8):
         s = load_sample(f"./sounds/Piano.ff.A{i}.npy")
         c = compute_frequency(s)
-        print(f"A{i}: " + str(c))
+        original_val = d[f"A{i}"]
+        difference = np.abs(c-original_val)
+        diffs.append(difference)
+        print(f"A{i}: {str(c)}\nOriginal: {original_val}\nDiffernce: {difference}")
+        print("--------------------------")
+
+        if i == 5:
+            s = load_sample("./sounds/Piano.ff.XX.npy")
+            c = compute_frequency(s)
+            original_val = d["D6"]
+            difference = np.abs(c-original_val)
+            diffs.append(difference)
+            print(f"XX: {str(c)}\nOriginal (D6): {original_val}\nDifference: {difference}")
+            print("--------------------------")
+    
+    plt.plot(np.array(diffs))
+    plt.show()
+    """
     s = load_sample("./sounds/Piano.ff.XX.npy")
     c = compute_frequency(s)
-    print(f"XX: " + str(c)) #D6?
+    original_val = d["D6"]
+    print("XX")
+    print(f"D6: {str(c)}\nOriginal: {original_val}\nDifference: {np.abs(c-original_val)}") #D6?
+    """
+    
 
 # This will be helpful:
 # https://en.wikipedia.org/wiki/Piano_key_frequencies
