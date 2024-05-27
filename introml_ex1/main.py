@@ -6,7 +6,10 @@ import numpy as np
 # TODO: Test the functions imported in lines 1 and 2 of this file.
 #------------exercise1 -----------------
 #
-# chirp = createChirpSignal(200, 1, 1, 10, True)
+chirp = createChirpSignal(200, 1, 1, 10, True)
+plt.plot(chirp)
+plt.xticks(ticks=plt.xticks()[0][1:-1], labels=(1/200) * np.array(plt.xticks()[0][1:-1], dtype=np.float64))
+plt.show()
 #
 #------------exercise2------------------
 #
@@ -19,6 +22,6 @@ amplitude = 1
 # square = createSquareSignal(samples, frequency, kMax)
 saw = createSawtoothSignal(samples, frequency, kMax, amplitude)
 #
-plt.plot(saw)
-plt.xticks(ticks=plt.xticks()[0][1:-1], labels=(1/samples) * np.array(plt.xticks()[0][1:-1], dtype=np.float64))
-plt.show()
+# plt.plot(saw)
+# plt.xticks(ticks=plt.xticks()[0][1:-1], labels=(1/samples) * np.array(plt.xticks()[0][1:-1], dtype=np.float64))
+# plt.show()

@@ -17,11 +17,11 @@ def load_sample(filename, duration=4*44100, offset=44100//10):
 def compute_frequency(signal, min_freq=20):
     sampling_rate = 44100
     n = len(signal)
-    T_s = 1 / sampling_rate 
+    T_s = 1 / sampling_rate
     f_n = np.fft.fft(signal)
     magnitude = np.abs(f_n)
     freqs = np.zeros(n)
-
+    # freqs = np.fft.fftfreq(n, T_s)
     for i in range(n):
         if i <= n//2:
             freqs[i] = i / (n * T_s)
@@ -44,6 +44,7 @@ if __name__ == '__main__':
     # plt.show()
     d = {"A2": 110.0000, "A3": 220.0000, "A4": 440.0000, "A5": 880.0000, "A6": 1760.000, "A7": 3520.000, "D6": 1174.659}
     diffs = []
+    print("--------------------------")
     for i in range(2, 8):
         s = load_sample(f"./sounds/Piano.ff.A{i}.npy")
         c = compute_frequency(s)
