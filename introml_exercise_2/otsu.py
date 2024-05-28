@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib import pyplot as plt
 #
 # NO OTHER IMPORTS ALLOWED
 #
@@ -10,7 +11,7 @@ def create_greyscale_histogram(img):
     :return: np.ndarray (256,) with absolute counts for each possible pixel value
     '''
     # TODO
-    pass
+    return np.histogram(img, 256, (0, 255))[0]
 
 
 def binarize_threshold(img, t):
@@ -21,7 +22,9 @@ def binarize_threshold(img, t):
     :return: np.ndarray binarized image with values in {0, 255}
     '''
     # TODO
-    pass
+    first = np.where((img <= t), img, 255)
+    second = np.where((first > t), first, 0)
+    return second
 
 
 def p_helper(hist, theta: int):
@@ -32,19 +35,30 @@ def p_helper(hist, theta: int):
     :param theta: current theta
     :return: p0, p1
     '''
-    pass
+    sum = np.sum(hist)
+    return np.sum(hist[:theta+1])/sum, np.sum(hist[theta+1:])/sum
 
 
 def mu_helper(hist, theta, p0, p1):
     '''
     Compute mu0 and m1
-    :param hist: histogram
+    :param hist: normalized histogram
     :param theta: current theta
     :param p0:
     :param p1:
     :return: mu0, mu1
     '''
-    pass
+    m0 = 0
+    m1 = 0
+    for i in range(theta+1):
+        m0 += i * hist[i]
+    for i in range(theta+1, len(hist)):
+        m1 += i * hist[i]
+    
+    m0 = m0/p0 if p0 > 0 else 0
+    m1 = m1/p1 if p1 > 0 else 0
+
+    return m0, m1
 
 
 def calculate_otsu_threshold(hist):
@@ -55,20 +69,29 @@ def calculate_otsu_threshold(hist):
     :return: threshold (int)
     '''
     # TODO initialize all needed variables
-
+    p0 = 0
+    p1 = 0
+    m0 = 0
+    m1 = 0
+    sig_int = 0
+    thresh = 0
+    threshs = []
     # TODO change the histogram, so that it visualizes the probability distribution of the pixels
     # --> sum(hist) = 1
-
+    norm_hist = hist / np.sum(hist)
     # TODO loop through all possible thetas
-
+    for theta in range(len(hist)):
         # TODO compute p0 and p1 using the helper function
-
+        p0, p1 = p_helper(hist, theta)
         # TODO compute mu and m1 using the helper function
-
+        m0, m1 = mu_helper(norm_hist, theta, p0, p1)
         # TODO compute variance
+        sig_int = p0 * p1 * ((m1 - m0)**2)
 
         # TODO update the threshold
-    pass
+        threshs.append(sig_int)
+    
+    return np.argmax(threshs)
 
 
 def otsu(img):
@@ -79,4 +102,6 @@ def otsu(img):
     :return: np.ndarray binarized image with values {0, 255}
     '''
     # TODO
-    pass
+    hist = create_greyscale_histogram(img)
+    t = calculate_otsu_threshold(hist)
+    return binarize_threshold(img, t)
