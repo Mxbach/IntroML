@@ -1,3 +1,4 @@
 introml_ex1/__pycache__/chirp.cpython-311.pyc
 introml_ex1/__pycache__/decomposition.cpython-311.pyc
 introml_ex1/__pycache__/exercise_1_piano.cpython-311.pyc
+*.pyc
