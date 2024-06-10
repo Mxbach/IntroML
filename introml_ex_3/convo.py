@@ -19,6 +19,10 @@ def slow_convolve(arr, k):
     new_arr = np.zeros((I, J))
     lr = U//2
     tb = V//2
+    
+    #
+    # aufrunden/abrunden aus formel noch richtig implementieren
+    #
 
     enlarged = np.zeros((I + 2*lr, J + 2*tb))
     enlarged[lr : lr+I, tb : tb+J] = arr[:, :]
@@ -32,7 +36,7 @@ def slow_convolve(arr, k):
             
             new_arr[i, j] = sum
 
-    return new_arr# implement the convolution with padding here
+    return new_arr # implement the convolution with padding here
 
 
 if __name__ == '__main__':
