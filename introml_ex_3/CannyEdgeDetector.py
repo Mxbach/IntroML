@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import convolve
 
+from convo import make_kernel
+
 
 #
 # NO MORE MODULES ALLOWED
@@ -16,8 +18,9 @@ def gaussFilter(img_in, ksize, sigma):
     :param sigma: sigma (float)
     :return: (kernel, filtered) kernel and gaussian filtered image (both np.ndarray)
     """
-    # TODO
-    pass
+    k = make_kernel(ksize, sigma)
+    con = convolve(img_in, k)
+    return (k, con.astype(int))
 
 
 def sobel(img_in):
@@ -29,7 +32,11 @@ def sobel(img_in):
     :return: gx, gy - sobel filtered images in x- and y-direction (np.ndarray, np.ndarray)
     """
     # TODO
-    pass
+    gx = [[-1, 0, +1], [-2, 0, +2], [-1, 0, +1]]
+    # ist vertikal geflippt
+    gy = [[1 , 2, 1], [0, 0, 0], [-1, -2, -1]]
+
+    return convolve(img_in, gx).astype(int), convolve(img_in, gy).astype(int)
 
 
 def gradientAndDirection(gx, gy):
@@ -40,7 +47,18 @@ def gradientAndDirection(gx, gy):
     :return: g, theta (np.ndarray, np.ndarray)
     """
     # TODO
-    pass
+
+    I, J = gx.shape
+    g = np.zeros((I, J), dtype=int)
+    # auf np.float ändern
+    arc = np.zeros((I, J), dtype=np.float64)
+    for i in range(I):
+        for j in range(J):
+            g[i, j] = int(np.sqrt(gx[i, j]**2 + gy[i, j]**2))
+            arc[i,j] = np.arctan2(gy[i,j], gx[i,j])
+
+    # return np.sqrt(gx**2 + gy**2), np.arctan2(gy, gx).astype(int)
+    return g, arc
 
 
 def convertAngle(angle):
@@ -50,7 +68,13 @@ def convertAngle(angle):
     :return: nearest match of {0, 45, 90, 135}
     """
     # TODO
-    pass
+    degree = angle * 180/np.pi
+    v = [0, 45, 90, 135]
+    l = [np.abs(degree - i) for i in v]
+    index = np.argmin(l)
+
+    #return v[min(range(len(v)), key = lambda i: abs(v[i]-degree))]
+    return v[index]
 
 
 def maxSuppress(g, theta):
