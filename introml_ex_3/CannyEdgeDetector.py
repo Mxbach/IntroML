@@ -73,8 +73,6 @@ def convertAngle(angle):
     # Possible matching angles in degrees
     l = [0, 45, 90, 135, 180]
     t = 0
-    
-    # 
     v = [(np.abs(x - degree)) for x in l]
     t = l[len(v) - 1 - np.argmin(v[::-1])]
     
@@ -89,8 +87,23 @@ def maxSuppress(g, theta):
     :return: max_sup (np.ndarray)
     """
     # TODO Hint: For 2.3.1 and 2 use the helper method above
-    pass
+    I, J = g.shape
+    out = np.zeros((I, J))
+    dir = {90: [(1, 0), (-1, 0)], 45: [(1, -1), (-1, 1)], 0: [(0, 1), (0, -1)], 135: [(1, 1), (-1, -1)]}
+    for i in range(I):
+        for j in range(J):
+            t = convertAngle(theta[i, j])
 
+            x1, y1 = dir[t][0] 
+            x1, y1 = (0, 0) if (not (0 <= i + x1 < I) or not (0 <= j + y1 < J)) else (x1, y1)
+
+            x2, y2 = dir[t][1]
+            x2, y2 = (0, 0) if (not (0 <= i + x2 < I) or not (0 <= j + y2 < J)) else (x2, y2)
+
+            if  (g[i, j] >= g[i + x1, j + y1] and g[i, j] >= g[i + x2, j + y2]):
+                out[i, j] = g[i, j]
+
+    return out
 
 def hysteris(max_sup, t_low, t_high):
     """
