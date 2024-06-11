@@ -69,14 +69,18 @@ def convertAngle(angle):
     """
     # TODO
     degree = angle * 180/np.pi
-    v = [0, 45, 90, 135]
-    l = [np.abs(degree - i) for i in v]
-    index = np.argmin(l)
+    degree = degree % 180
+    # Possible matching angles in degrees
+    l = [0, 45, 90, 135, 180]
+    t = 0
+    
+    # 
+    v = [(np.abs(x - degree)) for x in l]
+    t = l[len(v) - 1 - np.argmin(v[::-1])]
+    
+    return 0 if t == 180 else t
 
-    #return v[min(range(len(v)), key = lambda i: abs(v[i]-degree))]
-    return v[index]
-
-
+    
 def maxSuppress(g, theta):
     """
     calculate maximum suppression
