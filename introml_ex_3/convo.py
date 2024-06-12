@@ -14,7 +14,39 @@ def make_kernel(ksize, sigma):
     
     return kernel / np.sum(kernel) # implement the Gaussian kernel here
 
+def slow_convolve(arr, k):
+    I, J = arr.shape
+    new_arr = np.zeros((I, J))
 
+    U, V = k.shape
+    kernel = k[::, ::]
+
+    lr = int(np.floor(U/2))
+    tb = int(np.floor(V/2))
+
+    enlarged = np.zeros((I + 2*lr, J + 2*tb))
+    enlarged[lr : lr+I, tb : tb+J] = arr[:, :]
+
+    print(f"kernel:\n{kernel}\n")   
+    print(f"enlarged:\n{enlarged}\n")   
+    print(f"U: {U}, V: {V}")
+    for i in range(I):
+        for j in range(J):
+            sum = 0
+            # -1 bis 2 ex ## u = 1
+            for u in range(- int(np.floor(U/2)), int(np.ceil(U/2))): # U = 3, U/2 = 1,5
+                # -1 bis 1 ex ## v = -1
+                for v in range(- int(np.floor(V/2)), int(np.ceil(V/2))): # V = 2, V/2 = 1
+                    sum += kernel[u + int(np.floor(U/2)), v + int(np.floor(V/2))] * enlarged[i - u + int(np.floor(U/2)), j - v + int(np.floor(V/2))] # 1 + 0 + 0 + 0 + 
+
+            new_arr[i, j] = sum
+
+    print(f"correct:\n{convolve(arr, k, mode='same')}\n")
+    #print(f"ses:\n{convolve(arr, k)}\n")
+    print(f"new arr:\n{new_arr}\n")    
+    return new_arr
+
+"""
 def slow_convolve(arr, k):
 
     I, J = arr.shape[:2]
@@ -36,7 +68,7 @@ def slow_convolve(arr, k):
     # enlarged = np.zeros((I + 2*lr, J + 2*tb))
     # enlarged[lr : lr+I, tb : tb+J] = arr[:, :]
 
-    enlarged = np.pad(arr, ((tb, tb), (lr, lr)), mode="constant", constant_values=0)
+    enlarged = np.pad(arr, ((lr, lr), (tb, tb)), mode="constant", constant_values=0)
 
     he = U / 2
     lp = V / 2
@@ -48,13 +80,14 @@ def slow_convolve(arr, k):
             #     for v in range(-tb, int(lp) + 1 if lp > int(lp) else int(lp)):
             #         sum += kernel[u + lr, v + tb] * enlarged[i + u, j + u]
             #
-            for u in range(- int(np.floor(U/2)), int(np.ceil(U/2))):
-                for v in range(-int(np.floor(V/2)), int(np.ceil(V/2))):
-                    sum += k[u + int(np.floor(U/2)), v + int(np.floor(V/2))] * enlarged[i - u, j - v]
+            for u in range(- int(np.floor(U/2)), int(np.ceil(U/2)) - 1):
+                for v in range(-int(np.floor(V/2)), int(np.ceil(V/2)) - 1):
+                    # sum += k[u + int(np.floor(U/2)), v + int(np.floor(V/2))] * enlarged[i - u, j - v]
+                    sum += k[u, v] * enlarged[i + u, j + v]
             new_arr[i, j] = sum
     print(new_arr)
     return new_arr 
-
+"""
 
 if __name__ == '__main__':
     k = make_kernel(9,9/5)   # todo: find better parameters
