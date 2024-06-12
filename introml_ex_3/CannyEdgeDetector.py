@@ -51,7 +51,7 @@ def gradientAndDirection(gx, gy):
     I, J = gx.shape
     g = np.zeros((I, J), dtype=int)
     # auf np.float ändern
-    arc = np.zeros((I, J), dtype=np.float64)
+    arc = np.zeros((I, J), dtype=np.float)
     for i in range(I):
         for j in range(J):
             g[i, j] = int(np.sqrt(gx[i, j]**2 + gy[i, j]**2))
@@ -124,7 +124,7 @@ def hysteris(max_sup, t_low, t_high):
         for j in range(J):
             if max_sup[i, j] <= t_low:
                 thres_img[i, j] = 0
-            elif t_low < max_sup[i, j] <= t_high:
+            elif t_low < max_sup[i, j] and max_sup[i, j] <= t_high:
                 thres_img[i, j] = 1
             elif max_sup[i, j] > t_high:
                 thres_img[i, j] = 2
@@ -136,13 +136,11 @@ def hysteris(max_sup, t_low, t_high):
             if thres_img[i, j] == 2:
                 out[i, j] = 255
             
-            for x, y in neighbours:
-                if (1 <= i + x < I-1) and (1 <= j + y < J-1):
-                    if thres_img[i + x, j + y] == 1:
-                        out[i + x, j + y] = 255
+                for x, y in neighbours:
+                    if (0 <= i + x <= I-1) and (0 <= j + y <= J-1):
+                        if thres_img[i + x, j + y] == 1:
+                            out[i + x, j + y] = 255
                         
-    print(f"\n{thres_img}")
-    print(f"{out}")
     return out
 
 def canny(img):
