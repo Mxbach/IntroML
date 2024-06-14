@@ -15,6 +15,33 @@ def make_kernel(ksize, sigma):
     return kernel / np.sum(kernel) # implement the Gaussian kernel here
 
 def slow_convolve(arr, k):
+
+    I, J = arr.shape
+    U, V = k.shape
+    
+    # first = np.flip(k, axis=0)
+    # kernel = np.flip(first, axis=1)
+    kernel = k[::-1, ::-1] 
+
+    lr = int(np.floor(U/2))
+    tb = int(np.floor(V/2))
+
+    new_arr = np.zeros((I, J))
+    
+    enlarged = np.zeros((I + 2*lr, J + 2*tb))
+    enlarged[lr : lr+I, tb : tb+J] = arr[:, :]
+
+    for i in range(I):
+        for j in range(J):
+            sum = 0
+            for u in range(- lr, int(np.ceil(U/2))):
+                for v in range(- tb, int(np.ceil(V/2))):
+                    sum += kernel[u + lr, v + tb] * enlarged[i + u + lr, j + v + tb]
+            new_arr[i, j] = sum
+    return new_arr
+
+"""
+def slow_convolve(arr, k):
     I, J = arr.shape
     new_arr = np.zeros((I, J))
 
@@ -46,7 +73,6 @@ def slow_convolve(arr, k):
     print(f"new arr:\n{new_arr}\n")    
     return new_arr
 
-"""
 def slow_convolve(arr, k):
 
     I, J = arr.shape[:2]
@@ -91,18 +117,18 @@ def slow_convolve(arr, k):
 
 if __name__ == '__main__':
     k = make_kernel(9,9/5)   # todo: find better parameters
-    # print(k)
+
     # TODO: chose the image you prefer
     im = np.array((Image.open('input1.jpg')).convert("L"))
-    # bw.save("bird_black_white.png")
-    # im = np.array(Image.open('input2.jpg'))
-    # im = np.array(Image.open('input3.jpg'))
-    result = im + (im - slow_convolve(im, k))
-
-    bird = Image.fromarray(result)
-    bird.convert("RGB")
-    bird.save("test.png")
+    # im = np.array((Image.open('input2.jpg')).convert("L"))
+    # im = np.array((Image.open('input3.jpg')).convert("L"))
+    
     # TODO: blur the image, subtract the result to the input,
     #       add the result to the input, clip the values to the
     #       range [0,255] (remember warme-up exercise?), convert
     #       the array to np.unit8, and save the result
+    result = im + (im - slow_convolve(im, k))
+    result = np.clip(result, 0, 255).astype(np.uint8)
+    bird = Image.fromarray(result)
+    bird.save("test.png")
+
