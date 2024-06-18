@@ -57,7 +57,7 @@ def extractFanFeatures(magnitude_spectrum, k, sampling_steps) -> np.ndarray:
     pass
 
 
-def calcuateFourierParameters(img, k, sampling_steps) -> (np.ndarray, np.ndarray):
+def calcuateFourierParameters(img, k, sampling_steps) -> tuple[np.ndarray, np.ndarray]:
     '''
     Extract Features in Fourier space following the paper.
     :param img: input image
