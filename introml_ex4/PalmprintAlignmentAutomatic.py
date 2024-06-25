@@ -27,13 +27,54 @@ def drawCircle(img, x, y):
     return img
 
 
+def make_kernel(ksize, sigma):
+    kernel = np.zeros((ksize, ksize))
+    center = (ksize//2, ksize//2)
+    for i in range(ksize):
+        for j in range(ksize):
+            x = np.abs(i - center[0])
+            y = np.abs(j - center[1])
+            kernel[i, j] = 1/(2*np.pi* sigma**2) * np.exp(-((x**2 + y**2) / (2 * sigma**2)))
+    
+    return kernel / np.sum(kernel) # implement the Gaussian kernel here
+
+def slow_convolve(arr, k):
+
+    I, J = arr.shape
+    U, V = k.shape
+    
+    # first = np.flip(k, axis=0)
+    # kernel = np.flip(first, axis=1)
+    kernel = k[::-1, ::-1] 
+
+    lr = int(np.floor(U/2))
+    tb = int(np.floor(V/2))
+
+    new_arr = np.zeros((I, J))
+    
+    enlarged = np.zeros((I + 2*lr, J + 2*tb))
+    enlarged[lr : lr+I, tb : tb+J] = arr[:, :]
+
+    for i in range(I):
+        for j in range(J):
+            sum = 0
+            for u in range(- lr, int(np.ceil(U/2))):
+                for v in range(- tb, int(np.ceil(V/2))):
+                    sum += kernel[u + lr, v + tb] * enlarged[i + u + lr, j + v + tb]
+            new_arr[i, j] = sum
+    return new_arr
+
 def binarizeAndSmooth(img) -> np.ndarray:
     '''
     First Binarize using threshold of 115, then smooth with gauss kernel (5, 5)
     :param img: greyscale image in range [0, 255]
     :return: preprocessed image
     '''
-    pass
+    bin = cv2.threshold(img, 115, 255, cv2.THRESH_BINARY)[1]
+    kernel = make_kernel(5, 1)
+    res = cv2.filter2D(bin, -1, kernel)
+    # print(res)
+    return res
 
 
 def drawLargestContour(img) -> np.ndarray:
@@ -42,7 +83,15 @@ def drawLargestContour(img) -> np.ndarray:
     :param img: preprocessed image (mostly b&w)
     :return: contour image
     '''
-    pass
+
+    contours, _ = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    c = max(contours, key=cv2.contourArea)
+    out = np.zeros_like(img)
+    # mask = out == 0
+    # out = np.where(mask, out, 255)
+    cv2.drawContours(out, [c], -1, 255, 2)
+
+    return out
 
 
 def getFingerContourIntersections(contour_img, x) -> np.ndarray:
@@ -53,7 +102,27 @@ def getFingerContourIntersections(contour_img, x) -> np.ndarray:
     :param x: position of the image column to run along
     :return: y-values in np.ndarray in shape (6,)
     '''
-    pass
+    I, J = contour_img.shape
+    intersections = []
+    con = 255
+    back = 0
+
+    for i in range(I):
+        if i == 0 or i == I-1:
+            continue
+        elif contour_img[i, x] == con:
+            if contour_img[i-1, x] == back or contour_img[i+1, x] == back:
+                intersections.append(i+1)
+
+    # print("Contour image:")
+    # with np.printoptions(threshold=np.inf):
+    #     print(contour_img)
+    # 
+    # print("Intersections:", intersections)
+    out = intersections[1::2]
+    # out.extend(intersections[-5:-2])
+    print(out[:6])
+    return np.array(out[:6])
 
 
 def findKPoints(img, y1, x1, y2, x2) -> tuple:
@@ -66,7 +135,15 @@ def findKPoints(img, y1, x1, y2, x2) -> tuple:
     :param x2: x-coordinate of point
     :return: intersection point k as a tuple (ky, kx)
     '''
-    pass
+    m = (y2 - y1) / (x2 - x1)
+    t = y2 - m * x2
+
+    Y, X = img.shape
+    for x in range(X):
+        y = int(m*x + t)
+        if img[y, x] == 255:
+            return (y, x)
+    # [y, x]
 
 
 def getCoordinateTransform(k1, k2, k3) -> np.ndarray:
@@ -78,7 +155,24 @@ def getCoordinateTransform(k1, k2, k3) -> np.ndarray:
     :param k3: point in (y, x) order
     :return: 2x3 matrix rotation around origin by angle
     '''
-    pass
+    y1, x1 = k1
+    y2, x2 = k2
+    y3, x3 = k3
+
+    my = (y3 - y1) / (x3 - x1)
+    ty = y3 - my * x3
+
+    mx = -1/(my)
+    tx = y2 - mx * x2
+    
+    angle = np.arctan(np.abs((my - mx)) / (1 + mx * my))
+
+    nx = (tx - ty) / (my - mx)
+    ny = my * nx  + ty
+    print(nx, ny)
+    print(cv2.getRotationMatrix2D((nx, ny), angle, 1))
+    return cv2.getRotationMatrix2D((nx, ny), angle, 1)
+
 
 
 def palmPrintAlignment(img):
