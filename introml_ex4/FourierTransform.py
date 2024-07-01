@@ -9,7 +9,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 # do not import more modules!
 
-
+# 1. np.fft
+# 2. np.fftshift
+# 3. Calculate dB from Fourier Transform F: 20 * log_10(F)
 
 def polarToKart(shape, r, theta):
     '''
