@@ -181,18 +181,30 @@ def palmPrintAlignment(img):
     :param img: greyscale image
     :return: transformed image
     '''
-
+	
     # TODO threshold and blur
+    res = binarizeAndSmooth(img)
 
     # TODO find and draw largest contour in image
+    res = drawLargestContour(res)
 
     # TODO choose two suitable columns and find 6 intersections with the finger's contour
-
+    x1 = 
+    x2 = 
+	intersections1 = getFingerContourIntersections(contour_img, x1)
+	intersections2 = getFingerContourIntersections(contour_img, x2)
+	
     # TODO compute middle points from these contour intersections
+    
 
     # TODO extrapolate line to find k1-3
+    k1 = findKPoints(img, y1, x1, y2, x2)
+    k2 = findKPoints(img, y2, x2, y2, x2)
+   	k3 = findKPoints(img, y3, x3, y3, x3)
 
     # TODO calculate Rotation matrix from coordinate system spanned by k1-3
-
+	rot = getCoordinateTransform(k1, k2, k3)
+	
     # TODO rotate the image around new origin
+    res = res rotOPERATION rot
     pass
