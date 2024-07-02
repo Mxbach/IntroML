@@ -193,9 +193,7 @@ def palmPrintAlignment(img):
     x2 = 15
     intersections1 = getFingerContourIntersections(con, x1)
     intersections2 = getFingerContourIntersections(con, x2)
-    print(intersections1)
-    print(intersections2)
-
+    
     # TODO compute middle points from these contour intersections
     y11 = (intersections1[0] + intersections1[1]) / 2
     y12 = (intersections1[2] + intersections1[3]) / 2

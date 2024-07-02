@@ -21,7 +21,16 @@ def polarToKart(shape, r, theta):
     :param theta: angle
     :return: y, x
     '''
-    pass
+    height, width = shape
+    
+    center_y = height / 2
+    center_x = width / 2
+    
+    y = center_y + r * np.sin(theta)
+    x = center_x + r * np.cos(theta)
+
+    return y, x
+
 
 
 def calculateMagnitudeSpectrum(img) -> np.ndarray:
@@ -32,7 +41,11 @@ def calculateMagnitudeSpectrum(img) -> np.ndarray:
     :param img:
     :return:
     '''
-    pass
+    mag = np.abs(np.fft.fft2(img))
+    shift = np.fft.fftshift(mag)
+
+    out = 20 * np.log10(shift)
+    return out
 
 
 def extractRingFeatures(magnitude_spectrum, k, sampling_steps) -> np.ndarray:
@@ -43,7 +56,21 @@ def extractRingFeatures(magnitude_spectrum, k, sampling_steps) -> np.ndarray:
     :param sampling_steps: times to sample one ring --> theta/sampling rate
     :return: feature vector of k features
     '''
-    pass
+    #print(magnitude_spectrum)
+    l = []
+    for i in range(0, k):
+        sum = 0
+        theta = 0
+        for _ in range(sampling_steps):
+            for r in range(8 * (i - 1), 8 * i):
+
+                y, x = polarToKart(magnitude_spectrum.shape, r, (theta))
+                sum += magnitude_spectrum[int(y), int(x)]
+
+            theta += 2 * np.pi / sampling_steps
+
+        l.append(sum)
+    return np.array(l)
 
 
 def extractFanFeatures(magnitude_spectrum, k, sampling_steps) -> np.ndarray:
@@ -56,8 +83,22 @@ def extractFanFeatures(magnitude_spectrum, k, sampling_steps) -> np.ndarray:
     :param sampling_steps: number of rays to sample from in one fan-like area --> theta/sampling rate
     :return: feature vector of length k
     """
-    pass
+    I, J = magnitude_spectrum.shape
+    length = I if I < J else J
 
+    l = []
+    for i in range(k):
+        sum = 0
+        for steps in range(sampling_steps):
+            theta = steps * (length / sampling_steps)
+            for r in range(length):
+                y, x = polarToKart(magnitude_spectrum.shape, r, theta*np.pi / k-1)
+                #print(y, x)
+                sum += magnitude_spectrum[int(y), int(x)]
+        
+        l.append(sum)
+
+    return np.array(l)
 
 def calcuateFourierParameters(img, k, sampling_steps) -> tuple[np.ndarray, np.ndarray]:
     '''
