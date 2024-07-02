@@ -121,7 +121,7 @@ def getFingerContourIntersections(contour_img, x) -> np.ndarray:
     # print("Intersections:", intersections)
     out = intersections[1::2]
     # out.extend(intersections[-5:-2])
-    print(out[:6])
+    # print(out[:6])
     return np.array(out[:6])
 
 
@@ -165,13 +165,13 @@ def getCoordinateTransform(k1, k2, k3) -> np.ndarray:
     mx = -1/(my)
     tx = y2 - mx * x2
     
-    angle = np.arctan(np.abs((my - mx)) / (1 + mx * my))
+    div =  (1 + mx * my) if (1 + mx * my) != 0 else 1
 
-    nx = (tx - ty) / (my - mx)
-    ny = my * nx  + ty
-    print(nx, ny)
-    print(cv2.getRotationMatrix2D((nx, ny), angle, 1))
-    return cv2.getRotationMatrix2D((nx, ny), angle, 1)
+    angle = np.arctan(mx)
+
+    nx = int(np.round((tx - ty) / (my - mx)))
+    ny = int(np.round(my * nx  + ty))
+    return cv2.getRotationMatrix2D((ny, nx), np.degrees(angle), 1)
 
 
 
@@ -183,28 +183,37 @@ def palmPrintAlignment(img):
     '''
 	
     # TODO threshold and blur
-    res = binarizeAndSmooth(img)
+    blur = binarizeAndSmooth(img)
 
     # TODO find and draw largest contour in image
-    res = drawLargestContour(res)
+    con = drawLargestContour(blur)
 
     # TODO choose two suitable columns and find 6 intersections with the finger's contour
-    x1 = 
-    x2 = 
-	intersections1 = getFingerContourIntersections(contour_img, x1)
-	intersections2 = getFingerContourIntersections(contour_img, x2)
-	
+    x1 = 5
+    x2 = 15
+    intersections1 = getFingerContourIntersections(con, x1)
+    intersections2 = getFingerContourIntersections(con, x2)
+    print(intersections1)
+    print(intersections2)
+
     # TODO compute middle points from these contour intersections
-    
+    y11 = (intersections1[0] + intersections1[1]) / 2
+    y12 = (intersections1[2] + intersections1[3]) / 2
+    y13 = (intersections1[4] + intersections1[5]) / 2
+
+    y21 = (intersections2[0] + intersections2[1]) / 2
+    y22 = (intersections2[2] + intersections2[3]) / 2
+    y23 = (intersections2[4] + intersections2[5]) / 2
 
     # TODO extrapolate line to find k1-3
-    k1 = findKPoints(img, y1, x1, y2, x2)
-    k2 = findKPoints(img, y2, x2, y2, x2)
-   	k3 = findKPoints(img, y3, x3, y3, x3)
+    k1 = findKPoints(con, y11, x1, y21, x2)
+    k2 = findKPoints(con, y12, x1, y22, x2)
+    k3 = findKPoints(con, y13, x1, y23, x2)
 
     # TODO calculate Rotation matrix from coordinate system spanned by k1-3
-	rot = getCoordinateTransform(k1, k2, k3)
-	
+    rot = getCoordinateTransform(k1, k2, k3)
+    
     # TODO rotate the image around new origin
-    res = res rotOPERATION rot
-    pass
+    out = cv2.warpAffine(img, rot, (img.shape[1], img.shape[0]))
+    
+    return out
