@@ -17,15 +17,13 @@ def calculate_R_Distance(Rx, Ry):
     :return: Similiarity index of the two feature vectors
     '''
     dist = 0
-    print(Rx)
-    print(Ry)
+    min_len = min(len(Rx), len(Ry))
     for i in range(8):
         if i > len(Rx) - 1:
             continue
         dist += np.abs(Rx[i] - Ry[i])
     
-    print(dist)
-    return np.abs((1/8) * dist)
+    return dist / min_len
 
 
 def calculate_Theta_Distance(Thetax, Thetay):
@@ -35,4 +33,21 @@ def calculate_Theta_Distance(Thetax, Thetay):
     :param Thetay: Fan features of Person Y
     :return: Similiarity index of the two feature vectors
     '''
-    pass
+
+    lx_sum = np.sum(Thetax[:8])
+    ly_sum = np.sum(Thetay[:8])
+
+    lxx = 0
+    lyy = 0
+    lxy = 0
+    for i in range(8):
+        if i < len(Thetax):
+            lxx += (Thetax[i] - (1/len(Thetax)) * lx_sum)**2
+        if i < len(Thetay):
+            lyy += (Thetay[i] - (1/len(Thetay)) * ly_sum)**2
+        if i < len(Thetax) and i < len(Thetay):
+            lxy += (Thetax[i] - (1/len(Thetax)) * lx_sum) * (Thetay[i] - (1/len(Thetay)) * ly_sum)
+
+    dist = ( 1 - ( (lxy*lxy) / (lxx*lyy) ) ) * 100
+
+    return dist
