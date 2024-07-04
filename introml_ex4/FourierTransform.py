@@ -56,20 +56,27 @@ def extractRingFeatures(magnitude_spectrum, k, sampling_steps) -> np.ndarray:
     :param sampling_steps: times to sample one ring --> theta/sampling rate
     :return: feature vector of k features
     '''
-    #print(magnitude_spectrum)
+    # print(magnitude_spectrum)
     l = []
-    for i in range(0, k):
+    height, width = magnitude_spectrum.shape
+    # with np.printoptions(threshold=np.inf):
+    #     print(magnitude_spectrum)
+    #
+    # print("shape", magnitude_spectrum.shape)
+    for i in range(1,k+1):
         sum = 0
-        theta = 0
-        for _ in range(sampling_steps):
-            for r in range(8 * (i - 1), 8 * i):
-
-                y, x = polarToKart(magnitude_spectrum.shape, r, (theta))
-                sum += magnitude_spectrum[int(y), int(x)]
-
-            theta += 2 * np.pi / sampling_steps
-
+        for step in range(sampling_steps):
+            theta = step * (np.pi / (sampling_steps-1)) # -1 ?
+            # print(theta)
+            for r in range(8 * (i - 1) + 1, (8 * i)): # vllt + 1 - 1
+                # print("polar", theta, r)
+                y, x = polarToKart(magnitude_spectrum.shape, r, theta)
+                # print("kart", y, x)
+                if 0 <= int(y) < height and 0 <= int(x) < width:
+                    # print(magnitude_spectrum[int(np.round(y)), int(np.round(x))])
+                    sum += magnitude_spectrum[int(y), int(x)]
         l.append(sum)
+    print(l)
     return np.array(l)
 
 
