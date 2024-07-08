@@ -49,13 +49,13 @@ def process_and_train(labels, train, num_images, h, w):
     '''
 
     # Compute the average face --> calculate_average_face()
-
+    avg = calculate_average_face(train)
     # calculate the maximum number of eigenfaces
-
+    num = 0
     # calculate the eigenfaces --> calculate_eigenfaces()
-
+    ef = calculate_eigenfaces(train, avg, num)
     # calculate the coefficients/features for all images --> get_feature_representation()
-
+    features = get_feature_representation(train, ef, avg, num)
     # train the classifier using the calculated features
     pass
 
@@ -66,7 +66,7 @@ def calculate_average_face(train):
     :param train: training face images, 2D-array with images as row vectors
     :return: average face, 1D-array shape(#pixels)
     '''
-    pass
+    return np.mean(train, 0)
 
 
 def calculate_eigenfaces(train, avg, num_eigenfaces):
@@ -81,15 +81,29 @@ def calculate_eigenfaces(train, avg, num_eigenfaces):
     '''
 
     # subtract the average face from every training sample
-
+    # plt.imshow(avg.reshape((N, N)), 'gray')
+    # plt.show()
+    X = []
+    for t in train:
+        X.append(t - avg)
+    
+    out = []
     # compute the eigenfaces using svd
-    # You might have to swap the axes so that the images are represented as column vectors
+    for x in X:
+        u, s, v = np.linalg.svd(x)
 
+    # You might have to swap the axes so that the images are represented as column vectors
+        swap = np.swapaxes(u, 0, 1)
+    
     # represent your eigenfaces as row vectors in a 2D-matrix & crop it to the requested amount of eigenfaces
+        out.append(swap)
 
     # plot one eigenface to check whether you're using the right axis
     # comment out when submitting your exercise via studOn
-    pass
+    # plt.imshow(out[0])
+    # plt.show()
+
+    return out[:num_eigenfaces]
 
 
 def get_feature_representation(images, eigenfaces, avg, num_eigenfaces):
@@ -107,7 +121,9 @@ def get_feature_representation(images, eigenfaces, avg, num_eigenfaces):
     # 1. iterate through all images (one image per row)
     # 1.1 compute the zero mean image by subtracting the average face
     # 1.2 compute the image's coefficients for the expected number of eigenfaces
-    pass
+    for i in images:
+
+        pass
 
 
 def reconstruct_image(img, eigenfaces, avg, num_eigenfaces, h, w):
