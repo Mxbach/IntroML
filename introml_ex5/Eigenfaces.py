@@ -117,20 +117,21 @@ def get_feature_representation(images, eigenfaces, avg, num_eigenfaces):
     # 1.2 compute the image's coefficients for the expected number of eigenfaces
     
     # return np.cov(images, eigenfaces[:num_eigenfaces], aweights=avg)
-    # ef = eigenfaces[:num_eigenfaces]
-    # coeffs = []
-    # for i, img in enumerate(images):
-    #     zmi = img - avg
-    # 
-    #     calc = []
-    #     for e in ef:
-    #         calc.append(np.dot(zmi, e))
-    #     coeffs.append(calc)
-    # 
-    # return np.array(coeffs)
-    zmis = images - avg
-    coeffs = np.dot(zmis, eigenfaces[num_eigenfaces])
-    return coeffs
+    
+    ef = eigenfaces[:num_eigenfaces]
+    coeffs = []
+    for i, img in enumerate(images):
+        zmi = img - avg
+    
+        calc = []
+        for e in ef:
+            calc.append(np.dot(zmi, e))
+        coeffs.append(calc)
+    
+    return np.array(coeffs)
+    # zmis = images - avg
+    # coeffs = np.dot(zmis, eigenfaces[num_eigenfaces])
+    # return coeffs
 
 def reconstruct_image(img, eigenfaces, avg, num_eigenfaces, h, w):
     '''
@@ -144,16 +145,24 @@ def reconstruct_image(img, eigenfaces, avg, num_eigenfaces, h, w):
     :return: the reconstructed image, 2D array (shape of a original image)
     '''
     # reshape the input image to fit in the feature helper method
-    resh = np.reshape(img, (h, w))
+    # resh = np.reshape(img, avg.shape)
     # compute the coefficients to weight the eigenfaces --> get_feature_representation()
-    coeffs = get_feature_representation(resh)
+    coeffs = get_feature_representation(np.array([img]), eigenfaces, avg, num_eigenfaces)
+    
     # use the average image as starting point to reconstruct the input image
-
     # reconstruct the input image using the coefficients
+    zmi = img - avg
 
+    recon_img = np.copy(avg)
+
+    # print(coeffs)
+    # print(eigenfaces)
+    for n in range(num_eigenfaces):
+        recon_img += (zmi + eigenfaces[n]) * coeffs[0, n]
+
+    print(np.reshape(recon_img, (h, w)))
     # reshape the reconstructed image back to its original shape
-    pass
-
+    return np.reshape(recon_img, (h, w))
 
 def classify_image(img, eigenfaces, avg, num_eigenfaces, h, w):
     '''
