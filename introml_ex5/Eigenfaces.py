@@ -51,13 +51,14 @@ def process_and_train(labels, train, num_images, h, w):
     # Compute the average face --> calculate_average_face()
     avg = calculate_average_face(train)
     # calculate the maximum number of eigenfaces
-    num = 0
+    num_ef = num_images - 1
     # calculate the eigenfaces --> calculate_eigenfaces()
-    ef = calculate_eigenfaces(train, avg, num)
+    ef = calculate_eigenfaces(train, avg, num_ef)
     # calculate the coefficients/features for all images --> get_feature_representation()
-    features = get_feature_representation(train, ef, avg, num)
+    features = get_feature_representation(train, ef, avg, num_ef)
     # train the classifier using the calculated features
-    pass
+    clf.fit(features, labels)
+    return ef, num_ef, avg
 
 
 def calculate_average_face(train):
@@ -116,11 +117,9 @@ def get_feature_representation(images, eigenfaces, avg, num_eigenfaces):
     # 1.1 compute the zero mean image by subtracting the average face
     # 1.2 compute the image's coefficients for the expected number of eigenfaces
     
-    # return np.cov(images, eigenfaces[:num_eigenfaces], aweights=avg)
-    
     ef = eigenfaces[:num_eigenfaces]
     coeffs = []
-    for i, img in enumerate(images):
+    for img in images:
         zmi = img - avg
     
         calc = []
@@ -129,9 +128,6 @@ def get_feature_representation(images, eigenfaces, avg, num_eigenfaces):
         coeffs.append(calc)
     
     return np.array(coeffs)
-    # zmis = images - avg
-    # coeffs = np.dot(zmis, eigenfaces[num_eigenfaces])
-    # return coeffs
 
 def reconstruct_image(img, eigenfaces, avg, num_eigenfaces, h, w):
     '''
@@ -145,7 +141,6 @@ def reconstruct_image(img, eigenfaces, avg, num_eigenfaces, h, w):
     :return: the reconstructed image, 2D array (shape of a original image)
     '''
     # reshape the input image to fit in the feature helper method
-    # resh = np.reshape(img, avg.shape)
     # compute the coefficients to weight the eigenfaces --> get_feature_representation()
     coeffs = get_feature_representation(np.array([img]), eigenfaces, avg, num_eigenfaces)
     
@@ -174,8 +169,12 @@ def classify_image(img, eigenfaces, avg, num_eigenfaces, h, w):
     '''
 
     # reshape the input image as an matrix with the image as a row vector
-
+    mat = np.reshape(img, (h, w))
     # extract the features/coefficients for the eigenfaces of this image
-
+    coeffs = get_feature_representation(np.array([img]), eigenfaces, avg, num_eigenfaces)
     # predict the label of the given image by feeding its coefficients to the classifier
-    pass
+    # print(mat)
+    # print(eigenfaces)
+    # print(coeffs)
+    pred = clf.predict(coeffs)
+    return pred
