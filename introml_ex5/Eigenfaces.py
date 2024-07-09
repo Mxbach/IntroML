@@ -176,5 +176,5 @@ def classify_image(img, eigenfaces, avg, num_eigenfaces, h, w):
     # print(mat)
     # print(eigenfaces)
     # print(coeffs)
-    pred = clf.predict(coeffs)
+    pred = clf.predict(coeffs)[0]
     return pred
