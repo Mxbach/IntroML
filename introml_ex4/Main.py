@@ -94,4 +94,5 @@ ax6.imshow(img3_aligned, 'gray')
 ax6.axis('off')
 ax6.set_title('PP 3 aligned')
 
-FinalFig.show()
+# FinalFig.show()
+plt.show()
