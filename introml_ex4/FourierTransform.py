@@ -63,13 +63,13 @@ def extractRingFeatures(magnitude_spectrum, k, sampling_steps) -> np.ndarray:
     #     print(magnitude_spectrum)
     #
     # print("shape", magnitude_spectrum.shape)
-    """ 
-    for i in range(1,k+1):
+    
+    for i in range(k):
         sum = 0
         for step in range(sampling_steps):
             theta = step * (np.pi / (sampling_steps-1)) # -1 ?
             # print(theta)
-            for r in np.arange(8 * (i-1) + 1, (8 * i) - 1, 1):
+            for r in np.arange(k * i, (k * (i+1)) + 1, 1):
             # for r in range(8 * (i - 1) + 1, (8 * i) - 1, 2): # vllt + 1 - 1
                 # print("polar", theta, r)
                 y, x = polarToKart(magnitude_spectrum.shape, r, theta)
@@ -79,24 +79,7 @@ def extractRingFeatures(magnitude_spectrum, k, sampling_steps) -> np.ndarray:
                     sum += magnitude_spectrum[int(y), int(x)]
 
         l.append(sum)
-    """
-    for i in range(1, k+1):
-        sum = 0
-        for step in range(sampling_steps):
-            theta = step * (np.pi / (sampling_steps-1)) # -1 ?
-            # print(theta)
-            for r in range(8 * (i - 1), (8 * i)): # vllt + 1 - 1
-                # print("polar", theta, r)
-                y, x = polarToKart(magnitude_spectrum.shape, r, theta)
-                # print("kart", y, x)
-                if 0 <= int(y) < height and 0 <= int(x) < width:
-                    # print(magnitude_spectrum[int(np.round(y)), int(np.round(x))])
-                    sum += magnitude_spectrum[int(y), int(x)]
-
-        l.append(sum)
-    print(l)
     return np.array(l)
-
 
 def extractFanFeatures(magnitude_spectrum, k, sampling_steps) -> np.ndarray:
     """
@@ -110,20 +93,18 @@ def extractFanFeatures(magnitude_spectrum, k, sampling_steps) -> np.ndarray:
     """
     I, J = magnitude_spectrum.shape
     length = I if I < J else J
-
     l = []
     for i in range(1, k+1):
         sum = 0
-        for steps in range(sampling_steps):
-            theta = steps * (length / sampling_steps-1)
-            for r in range(length):
-                y, x = polarToKart(magnitude_spectrum.shape, r, theta*np.pi / k-1)
-                #print(y, x)
+        theta = i - 1
+        for r in range(sampling_steps):
+            y, x = polarToKart((I, J), r, (theta * np.pi) / (k-1))
+            if y < I and x < J:
                 sum += magnitude_spectrum[int(y), int(x)]
-        
         l.append(sum)
 
     return np.array(l)
+
 
 def calcuateFourierParameters(img, k, sampling_steps) -> tuple[np.ndarray, np.ndarray]:
     '''
@@ -136,4 +117,4 @@ def calcuateFourierParameters(img, k, sampling_steps) -> tuple[np.ndarray, np.nd
     mag = calculateMagnitudeSpectrum(img)
     R = extractRingFeatures(mag, k , sampling_steps)
     T = extractFanFeatures(mag, k, sampling_steps)
-    return R, T
+    return T, R

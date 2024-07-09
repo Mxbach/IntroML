@@ -141,8 +141,9 @@ def findKPoints(img, y1, x1, y2, x2) -> tuple:
     Y, X = img.shape
     for x in range(X):
         y = int(m*x + t)
-        if img[y, x] == 255:
-            return (y, x)
+        if y < Y:
+            if img[y, x] == 255:
+                return (y, x)
     # [y, x]
 
 
