@@ -87,23 +87,17 @@ def calculate_eigenfaces(train, avg, num_eigenfaces):
     for t in train:
         X.append(t - avg)
     
-    out = []
     # compute the eigenfaces using svd
-    for x in X:
-        u, s, v = np.linalg.svd(x)
-
+    u, s, vt = np.linalg.svd(X)
     # You might have to swap the axes so that the images are represented as column vectors
-        swap = np.swapaxes(u, 0, 1)
-    
+    # not neccessary
     # represent your eigenfaces as row vectors in a 2D-matrix & crop it to the requested amount of eigenfaces
-        out.append(swap)
-
+    out = vt[:num_eigenfaces]
     # plot one eigenface to check whether you're using the right axis
     # comment out when submitting your exercise via studOn
-    # plt.imshow(out[0])
+    # plt.plot(out[0])
     # plt.show()
-
-    return out[:num_eigenfaces]
+    return out
 
 
 def get_feature_representation(images, eigenfaces, avg, num_eigenfaces):
@@ -121,10 +115,22 @@ def get_feature_representation(images, eigenfaces, avg, num_eigenfaces):
     # 1. iterate through all images (one image per row)
     # 1.1 compute the zero mean image by subtracting the average face
     # 1.2 compute the image's coefficients for the expected number of eigenfaces
-    for i in images:
-
-        pass
-
+    
+    # return np.cov(images, eigenfaces[:num_eigenfaces], aweights=avg)
+    # ef = eigenfaces[:num_eigenfaces]
+    # coeffs = []
+    # for i, img in enumerate(images):
+    #     zmi = img - avg
+    # 
+    #     calc = []
+    #     for e in ef:
+    #         calc.append(np.dot(zmi, e))
+    #     coeffs.append(calc)
+    # 
+    # return np.array(coeffs)
+    zmis = images - avg
+    coeffs = np.dot(zmis, eigenfaces[num_eigenfaces])
+    return coeffs
 
 def reconstruct_image(img, eigenfaces, avg, num_eigenfaces, h, w):
     '''
@@ -138,9 +144,9 @@ def reconstruct_image(img, eigenfaces, avg, num_eigenfaces, h, w):
     :return: the reconstructed image, 2D array (shape of a original image)
     '''
     # reshape the input image to fit in the feature helper method
-
+    resh = np.reshape(img, (h, w))
     # compute the coefficients to weight the eigenfaces --> get_feature_representation()
-
+    coeffs = get_feature_representation(resh)
     # use the average image as starting point to reconstruct the input image
 
     # reconstruct the input image using the coefficients
@@ -167,5 +173,3 @@ def classify_image(img, eigenfaces, avg, num_eigenfaces, h, w):
 
     # predict the label of the given image by feeding its coefficients to the classifier
     pass
-
-
