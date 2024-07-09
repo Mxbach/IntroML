@@ -150,19 +150,16 @@ def reconstruct_image(img, eigenfaces, avg, num_eigenfaces, h, w):
     coeffs = get_feature_representation(np.array([img]), eigenfaces, avg, num_eigenfaces)
     
     # use the average image as starting point to reconstruct the input image
-    # reconstruct the input image using the coefficients
-    zmi = img - avg
-
     recon_img = np.copy(avg)
-
+    # reconstruct the input image using the coefficients
     # print(coeffs)
     # print(eigenfaces)
     for n in range(num_eigenfaces):
-        recon_img += (zmi + eigenfaces[n]) * coeffs[0, n]
+        recon_img += eigenfaces[n] * coeffs[0, n]
 
-    print(np.reshape(recon_img, (h, w)))
     # reshape the reconstructed image back to its original shape
-    return np.reshape(recon_img, (h, w))
+    reconst_img = np.reshape(recon_img, (h, w))
+    return reconst_img
 
 def classify_image(img, eigenfaces, avg, num_eigenfaces, h, w):
     '''
